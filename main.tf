@@ -32,14 +32,17 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
             sub_domain_suffix    = https_endpoints.value.sub_domain_suffix
           }
         }
-        install_script_action {
-          name       = edge_node.value.install_script_action.name
-          parameters = edge_node.value.install_script_action.parameters
-          uri        = edge_node.value.install_script_action.uri
+        dynamic "install_script_action" {
+          for_each = edge_node.value.install_script_action
+          content {
+            name       = install_script_action.value.name
+            parameters = install_script_action.value.parameters
+            uri        = install_script_action.value.uri
+          }
         }
         target_instance_count = edge_node.value.target_instance_count
         dynamic "uninstall_script_actions" {
-          for_each = edge_node.value.uninstall_script_actions != null ? [edge_node.value.uninstall_script_actions] : []
+          for_each = edge_node.value.uninstall_script_actions != null ? edge_node.value.uninstall_script_actions : []
           content {
             name       = uninstall_script_actions.value.name
             parameters = uninstall_script_actions.value.parameters
@@ -52,7 +55,7 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
     head_node {
       password = each.value.roles.head_node.password
       dynamic "script_actions" {
-        for_each = each.value.roles.head_node.script_actions != null ? [each.value.roles.head_node.script_actions] : []
+        for_each = each.value.roles.head_node.script_actions != null ? each.value.roles.head_node.script_actions : []
         content {
           name       = script_actions.value.name
           parameters = script_actions.value.parameters
@@ -79,10 +82,13 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
           dynamic "recurrence" {
             for_each = autoscale.value.recurrence != null ? [autoscale.value.recurrence] : []
             content {
-              schedule {
-                days                  = recurrence.value.schedule.days
-                target_instance_count = recurrence.value.schedule.target_instance_count
-                time                  = recurrence.value.schedule.time
+              dynamic "schedule" {
+                for_each = recurrence.value.schedule
+                content {
+                  days                  = schedule.value.days
+                  target_instance_count = schedule.value.target_instance_count
+                  time                  = schedule.value.time
+                }
               }
               timezone = recurrence.value.timezone
             }
@@ -91,7 +97,7 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
       }
       password = each.value.roles.worker_node.password
       dynamic "script_actions" {
-        for_each = each.value.roles.worker_node.script_actions != null ? [each.value.roles.worker_node.script_actions] : []
+        for_each = each.value.roles.worker_node.script_actions != null ? each.value.roles.worker_node.script_actions : []
         content {
           name       = script_actions.value.name
           parameters = script_actions.value.parameters
@@ -108,7 +114,7 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
     zookeeper_node {
       password = each.value.roles.zookeeper_node.password
       dynamic "script_actions" {
-        for_each = each.value.roles.zookeeper_node.script_actions != null ? [each.value.roles.zookeeper_node.script_actions] : []
+        for_each = each.value.roles.zookeeper_node.script_actions != null ? each.value.roles.zookeeper_node.script_actions : []
         content {
           name       = script_actions.value.name
           parameters = script_actions.value.parameters
