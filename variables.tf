@@ -309,7 +309,7 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.hdinsight_hadoop_clusters : (
-        length(v.roles.edge_node.install_script_action) >= 1
+        v.roles.edge_node == null || (length(v.roles.edge_node.install_script_action) >= 1)
       )
     ])
     error_message = "Each install_script_action list must contain at least 1 items"
@@ -317,7 +317,7 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.hdinsight_hadoop_clusters : (
-        v.roles.edge_node.uninstall_script_actions == null || (length(v.roles.edge_node.uninstall_script_actions) >= 1)
+        v.roles.edge_node == null || (v.roles.edge_node.uninstall_script_actions == null || (length(v.roles.edge_node.uninstall_script_actions) >= 1))
       )
     ])
     error_message = "Each uninstall_script_actions list must contain at least 1 items"
@@ -333,7 +333,7 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.hdinsight_hadoop_clusters : (
-        length(v.roles.worker_node.autoscale.recurrence.schedule) >= 1
+        v.roles.worker_node.autoscale == null || (v.roles.worker_node.autoscale.recurrence == null || (length(v.roles.worker_node.autoscale.recurrence.schedule) >= 1))
       )
     ])
     error_message = "Each schedule list must contain at least 1 items"
