@@ -23,7 +23,7 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
       for_each = each.value.roles.edge_node != null ? [each.value.roles.edge_node] : []
       content {
         dynamic "https_endpoints" {
-          for_each = edge_node.value.https_endpoints != null ? [edge_node.value.https_endpoints] : []
+          for_each = edge_node.value.https_endpoints != null ? edge_node.value.https_endpoints : []
           content {
             access_modes         = https_endpoints.value.access_modes
             destination_port     = https_endpoints.value.destination_port
@@ -138,7 +138,7 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
   }
 
   dynamic "disk_encryption" {
-    for_each = each.value.disk_encryption != null ? [each.value.disk_encryption] : []
+    for_each = each.value.disk_encryption != null ? each.value.disk_encryption : []
     content {
       encryption_algorithm          = disk_encryption.value.encryption_algorithm
       encryption_at_host_enabled    = disk_encryption.value.encryption_at_host_enabled
@@ -233,7 +233,7 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
   }
 
   dynamic "storage_account" {
-    for_each = each.value.storage_account != null ? [each.value.storage_account] : []
+    for_each = each.value.storage_account != null ? each.value.storage_account : []
     content {
       is_default           = storage_account.value.is_default
       storage_account_key  = storage_account.value.storage_account_key

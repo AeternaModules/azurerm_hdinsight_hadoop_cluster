@@ -156,13 +156,13 @@ EOT
     })
     roles = object({
       edge_node = optional(object({
-        https_endpoints = optional(object({
+        https_endpoints = optional(list(object({
           access_modes         = optional(list(string))
           destination_port     = optional(number)
           disable_gateway_auth = optional(bool)
           private_ip_address   = optional(string)
           sub_domain_suffix    = optional(string)
-        }))
+        })))
         install_script_action = list(object({
           name       = string
           parameters = optional(string)
@@ -235,12 +235,12 @@ EOT
       compute_isolation_enabled = optional(bool) # Default: false
       host_sku                  = optional(string)
     }))
-    disk_encryption = optional(object({
+    disk_encryption = optional(list(object({
       encryption_algorithm          = optional(string)
       encryption_at_host_enabled    = optional(bool)
       key_vault_key_id              = optional(string)
       key_vault_managed_identity_id = optional(string)
-    }))
+    })))
     extension = optional(object({
       log_analytics_workspace_id = string
       primary_key                = string
@@ -293,12 +293,12 @@ EOT
       ldaps_urls              = set(string)
       msi_resource_id         = string
     }))
-    storage_account = optional(object({
+    storage_account = optional(list(object({
       is_default           = bool
       storage_account_key  = string
       storage_container_id = string
       storage_resource_id  = optional(string)
-    }))
+    })))
     storage_account_gen2 = optional(object({
       filesystem_id                = string
       is_default                   = bool
@@ -354,14 +354,6 @@ EOT
     ])
     error_message = "Each script_actions list must contain at least 1 items"
   }
-  validation {
-    condition = alltrue([
-      for k, v in var.hdinsight_hadoop_clusters : (
-        v.roles.edge_node == null || (v.roles.edge_node.target_instance_count >= 1 && v.roles.edge_node.target_instance_count <= 25)
-      )
-    ])
-    error_message = "must be between 1 and 25"
-  }
   # --- Unconfirmed validation candidates, derived from azurerm_hdinsight_hadoop_cluster's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
@@ -382,6 +374,9 @@ EOT
   #   source:    [from resourcegroups.ValidateName] !matched
   # path: location
   #   source:    location.EnhancedValidate: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: roles.edge_node.target_instance_count
+  #   condition: value >= 1 && value <= 25
+  #   message:   must be between 1 and 25
   # path: roles.edge_node.vm_size
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
   # path: roles.edge_node.install_script_action.name
