@@ -6,8 +6,8 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
   name                = each.value.name
   resource_group_name = each.value.resource_group_name
   tier                = each.value.tier
-  tags                = each.value.tags
   tls_min_version     = each.value.tls_min_version
+  tags                = each.value.tags
 
   component_version {
     hadoop = each.value.component_version.hadoop
@@ -235,20 +235,20 @@ resource "azurerm_hdinsight_hadoop_cluster" "hdinsight_hadoop_clusters" {
   dynamic "storage_account" {
     for_each = each.value.storage_account != null ? each.value.storage_account : []
     content {
-      is_default           = storage_account.value.is_default
-      storage_account_key  = storage_account.value.storage_account_key
-      storage_container_id = storage_account.value.storage_container_id
-      storage_resource_id  = storage_account.value.storage_resource_id
+      is_default            = storage_account.value.is_default
+      storage_account_id    = storage_account.value.storage_account_id
+      storage_account_key   = storage_account.value.storage_account_key
+      storage_container_url = storage_account.value.storage_container_url
     }
   }
 
   dynamic "storage_account_gen2" {
     for_each = each.value.storage_account_gen2 != null ? [each.value.storage_account_gen2] : []
     content {
-      filesystem_id                = storage_account_gen2.value.filesystem_id
-      is_default                   = storage_account_gen2.value.is_default
-      managed_identity_resource_id = storage_account_gen2.value.managed_identity_resource_id
-      storage_resource_id          = storage_account_gen2.value.storage_resource_id
+      filesystem_id             = storage_account_gen2.value.filesystem_id
+      is_default                = storage_account_gen2.value.is_default
+      storage_account_id        = storage_account_gen2.value.storage_account_id
+      user_assigned_identity_id = storage_account_gen2.value.user_assigned_identity_id
     }
   }
 }
